@@ -1,0 +1,26 @@
+{
+    "name": "scrapingyoutubeviewcount",
+    "version": "1.0.0",
+    "description": "Node web scraping youtube view count",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rubekx/scrapingYoutubeViewCount.git"
+    },
+    "author": "rubekx",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/rubekx/scrapingYoutubeViewCount/issues"
+    },
+    "homepage": "https://github.com/rubekx/scrapingYoutubeViewCount#readme",
+    "dependencies": {
+        "cheerio": "^1.0.0-rc.3",
+        "fs": "0.0.1-security",
+        "got": "^11.3.0",
+        "request": "^2.88.2",
+        "request-promise": "^4.2.5"
+    }
+}
