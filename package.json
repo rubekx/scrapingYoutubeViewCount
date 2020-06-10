@@ -18,6 +18,8 @@
     "homepage": "https://github.com/rubekx/scrapingYoutubeViewCount#readme",
     "dependencies": {
         "cheerio": "^1.0.0-rc.3",
-        "got": "^11.3.0"
+        "dotenv": "^8.2.0",
+        "got": "^11.3.0",
+        "mysql": "^2.18.1"
     }
 }
