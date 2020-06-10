@@ -1,7 +1,6 @@
 const cheerio = require('cheerio');
 const got = require('got');
 
-let video_count = []
 let urls = [
     'https://www.youtube.com/watch?v=f2rPHMSOYxc',
     'https://www.youtube.com/watch?v=gdY9n0A1F-k',
@@ -30,10 +29,6 @@ const getCount = (url) => {
         });
 }
 
-
-// while (urls.length > 0) {
-
-// }
 urls.forEach(element => {
     getCount(element)
 })
