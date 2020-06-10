@@ -13,7 +13,7 @@ const con = mysql.createConnection({
 
 const getObjetoApr = (con) => {
     return new Promise(resolve => {
-        con.query('SELECT * FROM  objeto_aprendizagem WHERE data like "%2018-11%" ', function(error, results) {
+        con.query('SELECT * FROM  objeto_aprendizagem WHERE data like "%2019-12-18%" ', function(error, results) {
             if (error) throw error;
             let urls = [];
             results.forEach(element => {
@@ -30,31 +30,31 @@ const getObjetoApr = (con) => {
 const updateObjetoApr = (con, id, total) => {
     return new Promise(resolve => {
         let sql = 'UPDATE objeto_aprendizagem SET num_acesso = ' + total + ' WHERE id = ' + id;
+        console.log(sql)
         con.query(sql, function(error, result) {
             if (error) throw error;
-            resolve(result.affectedRows)
+            resolve(result)
         });
     });
 }
 
 const removeInfo = (str) => {
-    let view_count = str.replace('visualizações', '');
-    return view_count.replace('.', '');
+    return new Promise(resolve => {
+        let view_count = str.replace('visualizações', '');
+        resolve(view_count.replace('.', ''))
+    });
 }
 
-const getCount = (url) => {
-    got(url.link).then(response => {
+const getCount = async(url) => {
+    await got(url.link).then(response => {
             let $ = cheerio.load(response.body);
-            if (typeof $('div[class=watch-view-count]')[0] === 'undefined')
-                getCount(url)
-            else {
-                // let total = removeInfo($('div[class=watch-view-count]')[0].children[0].data)
-                // console.log(total)
-                // return total
-                return removeInfo($('div[class=watch-view-count]')[0].children[0].data)
-
+            if (typeof $('div[class=watch-view-count]')[0] === 'undefined') {
+                getCount(url);
+            } else {
+                removeInfo($('div[class=watch-view-count]')[0].children[0].data).then(result => {
+                    updateObjetoApr(con, url.id, result)
+                })
             }
-
         })
         .catch(error => {
             console.log(error);
@@ -63,19 +63,8 @@ const getCount = (url) => {
 
 getObjetoApr(con)
     .then(response => {
-        let count = [];
         for (var item in response) {
-            count.push({
-                'id': response[item].id,
-                'total': getCount(response[item]),
-            });
+            getCount(response[item])
         }
-    })
-    .then(response => {
-        for (var item in response) {
-            console.log(response[item])
-            updateObjetoApr(con, response[item].id, response[item].total)
-        }
-        con.end();
     })
     .catch(e => console.log(e))
