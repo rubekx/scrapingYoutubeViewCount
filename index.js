@@ -10,6 +10,9 @@ const con = mysql.createConnection({
     database: process.env.DB_NAME,
 });
 
+const sleep = (milliseconds) => {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
 
 const getObjetoApr = (con) => {
     return new Promise(resolve => {
@@ -32,16 +35,14 @@ const updateObjetoApr = (con, id, total) => {
         let sql = 'UPDATE objeto_aprendizagem SET num_acesso = ' + total + ' WHERE id = ' + id;
         con.query(sql, function(error, result) {
             if (error) throw error;
-            resolve(result)
+            resolve(result.message)
         });
     });
 }
 
-const removeInfo = (str) => {
-    // return new Promise(resolve => {
+const removeInfo = async(str) => {
+    await sleep(2000)
     let view_count = str.replace('visualizações', '');
-    // resolve(view_count.replace('.', ''))
-    // });
     view_count.replace('.', '')
     return view_count
 }
@@ -71,9 +72,12 @@ getObjetoApr(con)
             await getCount(response[item])
                 .then(result => {
                     updateObjetoApr(con, response[item].id, result)
+                        .then(resp => console.log(resp))
                     console.log(result)
                 })
         }
     })
-    .then(_ => con.end())
-    .catch(e => console.log(e))
+    .then(() => {
+        con.end()
+    })
+    .catch((e) => console.log(e))
