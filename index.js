@@ -30,7 +30,6 @@ const getObjetoApr = (con) => {
 const updateObjetoApr = (con, id, total) => {
     return new Promise(resolve => {
         let sql = 'UPDATE objeto_aprendizagem SET num_acesso = ' + total + ' WHERE id = ' + id;
-        console.log(sql)
         con.query(sql, function(error, result) {
             if (error) throw error;
             resolve(result)
@@ -39,32 +38,42 @@ const updateObjetoApr = (con, id, total) => {
 }
 
 const removeInfo = (str) => {
-    return new Promise(resolve => {
-        let view_count = str.replace('visualizações', '');
-        resolve(view_count.replace('.', ''))
-    });
+    // return new Promise(resolve => {
+    let view_count = str.replace('visualizações', '');
+    // resolve(view_count.replace('.', ''))
+    // });
+    view_count.replace('.', '')
+    return view_count
 }
 
 const getCount = async(url) => {
+    let temp = []
     await got(url.link).then(response => {
             let $ = cheerio.load(response.body);
-            if (typeof $('div[class=watch-view-count]')[0] === 'undefined') {
+            if (typeof $('div[class=watch-view-count]')[0] === 'undefined' || $('div[class=watch-view-count]')[0].children[0] === 'undefined') {
                 getCount(url);
             } else {
-                removeInfo($('div[class=watch-view-count]')[0].children[0].data).then(result => {
-                    updateObjetoApr(con, url.id, result)
-                })
+                temp = removeInfo($('div[class=watch-view-count]')[0].children[0].data)
             }
         })
         .catch(error => {
             console.log(error);
         });
+    if (temp.length != 0)
+        return temp
+    else
+        return getCount(url)
 }
 
 getObjetoApr(con)
-    .then(response => {
+    .then(async response => {
         for (var item in response) {
-            getCount(response[item])
+            await getCount(response[item])
+                .then(result => {
+                    updateObjetoApr(con, response[item].id, result)
+                    console.log(result)
+                })
         }
     })
+    .then(_ => con.end())
     .catch(e => console.log(e))
