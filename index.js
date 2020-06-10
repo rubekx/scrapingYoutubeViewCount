@@ -11,7 +11,9 @@ const con = mysql.createConnection({
 });
 
 const sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
+    return new Promise((resolve) => {
+        setTimeout(resolve('3 segundos de paua'), milliseconds)
+    })
 }
 
 const getObjetoApr = (con) => {
@@ -30,9 +32,27 @@ const getObjetoApr = (con) => {
     });
 }
 
+function formatDate() {
+    let d = new Date(),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear(),
+        hour = d.getHours(),
+        minute = d.getMinutes(),
+        second = d.getSeconds();
+
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+    let time = [hour, minute, second].join(':')
+    let date = [year, month, day].join('-');
+    return [date, time].join(' ');
+}
+
 const updateObjetoApr = (con, id, total) => {
     return new Promise(resolve => {
-        let sql = 'UPDATE objeto_aprendizagem SET num_acesso = ' + total + ' WHERE id = ' + id;
+        let sql = 'UPDATE objeto_aprendizagem SET num_acesso = ' + total + ', updated_at="' + formatDate() + '" WHERE id = ' + id;
         con.query(sql, function(error, result) {
             if (error) throw error;
             resolve(result.message)
@@ -41,7 +61,6 @@ const updateObjetoApr = (con, id, total) => {
 }
 
 const removeInfo = async(str) => {
-    await sleep(2000)
     let view_count = str.replace('visualizações', '');
     view_count.replace('.', '')
     return view_count
@@ -55,6 +74,7 @@ const getCount = async(url) => {
                 getCount(url);
             } else {
                 temp = removeInfo($('div[class=watch-view-count]')[0].children[0].data)
+                    // console.log(temp)
             }
         })
         .catch(error => {
@@ -72,7 +92,9 @@ getObjetoApr(con)
             await getCount(response[item])
                 .then(result => {
                     updateObjetoApr(con, response[item].id, result)
-                        .then(resp => console.log(resp))
+                        .then(resp => {
+                            console.log(resp)
+                        })
                     console.log(result)
                 })
         }
